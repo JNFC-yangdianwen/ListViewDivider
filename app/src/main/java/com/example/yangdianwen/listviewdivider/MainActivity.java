@@ -3,19 +3,19 @@ package com.example.yangdianwen.listviewdivider;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AutoListView.MyReflashListener {
 
-    private ListView listview;
+    private AutoListView listview;
   List<String>data;
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
@@ -23,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         data=new ArrayList<>();
-        listview = (ListView) findViewById(R.id.local_groups_list);
+        listview = (AutoListView) findViewById(R.id.local_groups_list);
+        //设置接口
+        listview.setInterface(this);
         for (int i = 0; i <20 ; i++) {
             data.add(""+i);
         }
@@ -40,5 +42,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+   //刷新数据接口回调
+    @Override
+    public void onReflash() {
+        Handler mHandler=new Handler();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                listview.refreshComplete();
+            }
+        },2000);
+
     }
 }
