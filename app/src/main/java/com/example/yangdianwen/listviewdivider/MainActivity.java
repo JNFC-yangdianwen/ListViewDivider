@@ -16,7 +16,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements AutoListView.MyReflashListener {
 
     private AutoListView listview;
-  List<String>data;
+    List<String>data;
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +50,10 @@ public class MainActivity extends AppCompatActivity implements AutoListView.MyRe
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                data.clear();
+                for (int i = 0; i <20 ; i++) {
+                    data.add("刷新出来的数据："+i);
+                }
                 listview.refreshComplete();
             }
         },2000);
