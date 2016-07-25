@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">ListViewDivider</string>
     <string name="pullToRefresh">下拉刷新</string>
-    <string name="ReleseToRefresh">松开刷新</string>
-    <string name="Refreshing">正在刷新</string>
+    <string name="releaseToRefresh">松开刷新</string>
+    <string name="refreshing">正在刷新</string>
+    <string name="loadMore">上拉加载更多</string>
+    <string name="loading">正在加载中</string>
 </resources>

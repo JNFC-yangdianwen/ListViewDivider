@@ -13,7 +13,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements AutoListView.MyReflashListener {
+public class MainActivity extends AppCompatActivity implements AutoListView.MyReflashListener,AutoListView.OnLoadMoreListener {
 
     private AutoListView listview;
     List<String>data;
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements AutoListView.MyRe
         data=new ArrayList<>();
         listview = (AutoListView) findViewById(R.id.local_groups_list);
         //设置接口
-        listview.setInterface(this);
+        listview.setInterface(this,this);
         for (int i = 0; i <20 ; i++) {
             data.add(""+i);
         }
@@ -58,5 +58,19 @@ public class MainActivity extends AppCompatActivity implements AutoListView.MyRe
             }
         },2000);
 
+    }
+
+    @Override
+    public void loadMore() {
+        Handler mHandler=new Handler();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i <20 ; i++) {
+                    data.add("上拉加载出来的数据："+i);
+                }
+                listview.loadComplete();
+            }
+        },10000);
     }
 }

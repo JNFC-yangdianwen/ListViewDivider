@@ -35,12 +35,16 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
     private static final int RELEASE=2;
     //正在刷新
     private static final int REFRESHING=3;
+    private boolean isLoading;
     private boolean isRemark;//标记listview是否为最顶端
     private int startY;//按下 开始时的Y值
     private int state;//
     private int firstVisibleItem;//
+    private int lastItem;
+    private int totalItemCount;
     private int scrollState;//当前滚动状态
     private MyReflashListener myReflashListener;//刷新接口
+    private OnLoadMoreListener onLoadMoreListener;//加载更多的数据接口
     private RotateAnimation animation;
     private RotateAnimation reverseAnimation;
     private LayoutInflater inflater;
@@ -51,6 +55,8 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
     private TextView tip;
     private ProgressBar progress;
     private TextView lastUpDateTime;
+    private View footView;
+    private TextView footTextView;
 
 
     public AutoListView(Context context) {
@@ -82,9 +88,13 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
         //listview的头布局
         inflater = LayoutInflater.from(context);
         headerView = inflater.inflate(R.layout.headerview, null);
+        footView = inflater.inflate(R.layout.footview, null);
         measureView(headerView);
         //添加头部布局
         this.addHeaderView(headerView);
+        //添加底部布局
+        this.addFooterView(footView);
+        footTextView = (TextView) footView.findViewById(R.id.foot_layout);
         //设置滑动监听
         this.setOnScrollListener(this);
         //顶部布局文件的高度
@@ -119,16 +129,7 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
             view.measure(width,height);
         }
     }
-    //重写的滑动监听
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        this.firstVisibleItem=firstVisibleItem;
-    }
 
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        this.scrollState=scrollState;
-    }
      //监听手势事件
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
@@ -227,7 +228,7 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
             case RELEASE:
                 arrow.setVisibility(VISIBLE);
                 progress.setVisibility(GONE);
-                tip.setText(R.string.ReleseToRefresh);
+                tip.setText(R.string.releaseToRefresh);
                 arrow.clearAnimation();
                 arrow.setAnimation(animation);
             break;
@@ -235,9 +236,37 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
                 topPadding(50);
                 arrow.setVisibility(GONE);
                 progress.setVisibility(VISIBLE);
-                tip.setText(R.string.Refreshing);
+                tip.setText(R.string.refreshing);
                 arrow.clearAnimation();
             break;
+        }
+    }
+    //重写的滑动监听
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        this.firstVisibleItem=firstVisibleItem;
+        this.lastItem = firstVisibleItem + visibleItemCount;
+        this.totalItemCount=totalItemCount;
+
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        this.scrollState=scrollState;
+        if (lastItem == totalItemCount && scrollState == SCROLL_STATE_IDLE) {
+            if (!isLoading) {
+                isLoading=true;
+                footTextView.setText(R.string.loadMore);
+                footView.findViewById(R.id.foot_layout).setVisibility(View.VISIBLE);
+                footView.findViewById(R.id.progress).setVisibility(View.GONE);
+                onLoadMoreListener.loadMore();
+            }else {
+                footTextView.setText(R.string.loading);
+                footView.findViewById(R.id.foot_layout).setVisibility(View.VISIBLE);
+                footView.findViewById(R.id.progress).setVisibility(View.VISIBLE);
+                onLoadMoreListener.loadMore();
+            }
         }
     }
     //刷新完成，状态为正常状态
@@ -253,12 +282,26 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
         String time = format.format(date);
         lastUpDateTime.setText(time);
     }
-    //设置刷新监听的方法（类似setOnclickListener）
-    public void setInterface(MyReflashListener myReflashListener){
-        this.myReflashListener=myReflashListener;
+    public void loadComplete(){
+        isLoading=false;
+        footView.findViewById(R.id.foot_layout).setVisibility(View.GONE);
+        footView.findViewById(R.id.progress).setVisibility(GONE);
+
+
     }
+    //设置刷新，加载更多的监听的方法（类似setOnclickListener）
+    public void setInterface(MyReflashListener myReflashListener,OnLoadMoreListener onLoadMoreListener){
+        this.myReflashListener=myReflashListener;
+        this.onLoadMoreListener=onLoadMoreListener;
+    }
+    //设置加载更多的接口
+
     //刷新数据接口
     public interface MyReflashListener{
         void onReflash();
+    }
+    //上啦加载更多
+    public interface OnLoadMoreListener{
+        void loadMore();
     }
 }
