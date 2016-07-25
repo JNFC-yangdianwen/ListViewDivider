@@ -75,12 +75,12 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
     // 初始化组件
     private void initView(Context context) {
         // 设置箭头特效
-        animation = new RotateAnimation(0, 180,
+        animation = new RotateAnimation(0, -180,
                 RotateAnimation.RELATIVE_TO_SELF, 0.5f,
                 RotateAnimation.RELATIVE_TO_SELF, 0.5f);
         animation.setDuration(500);
         animation.setFillAfter(true);
-        reverseAnimation = new RotateAnimation(180, 0,
+        reverseAnimation = new RotateAnimation(-180, -360,
                 RotateAnimation.RELATIVE_TO_SELF, 0.5f,
                 RotateAnimation.RELATIVE_TO_SELF, 0.5f);
         reverseAnimation.setDuration(500);
@@ -155,7 +155,7 @@ public class AutoListView extends ListView implements AbsListView.OnScrollListen
                     //加载最新数据
                     myReflashListener.onReflash();
                 }else if (state==PULL){
-                    state=RELEASE;
+                    state=NONE;
                     isRemark=false;
                     refreshByState();
                 }

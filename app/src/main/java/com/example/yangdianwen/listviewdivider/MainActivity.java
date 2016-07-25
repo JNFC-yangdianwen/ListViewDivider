@@ -5,59 +5,36 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AutoListView.MyReflashListener,AutoListView.OnLoadMoreListener {
-
     private AutoListView listview;
-    List<String>data;
+    private DataAdapter adapter;
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        data=new ArrayList<>();
         listview = (AutoListView) findViewById(R.id.local_groups_list);
         //设置接口
         listview.setInterface(this,this);
-        for (int i = 0; i <20 ; i++) {
-            data.add(""+i);
-        }
         listview.setDividerHeight(20);
-        ArrayAdapter adapter=new ArrayAdapter(this,android.R.layout.simple_list_item_1,data);
+        adapter = new DataAdapter();
         listview.setAdapter(adapter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                for (int i = 0; i <data.size() ; i++) {
-                    if (position== i){
-                        Toast.makeText(MainActivity.this, ""+i, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
     }
    //刷新数据接口回调
     @Override
     public void onReflash() {
+        adapter.clearDatas();
         Handler mHandler=new Handler();
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                data.clear();
                 for (int i = 0; i <20 ; i++) {
-                    data.add("刷新出来的数据："+i);
+                    adapter.addDatas("下拉刷新的数据"+i);
                 }
                 listview.refreshComplete();
             }
         },2000);
-
     }
 
     @Override
@@ -66,11 +43,11 @@ public class MainActivity extends AppCompatActivity implements AutoListView.MyRe
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i <20 ; i++) {
-                    data.add("上拉加载出来的数据："+i);
+                for (int i = 0; i <10 ; i++) {
+                    adapter.addDatas("上拉加载更多的数据！");
                 }
                 listview.loadComplete();
             }
-        },10000);
+        },4000);
     }
 }
